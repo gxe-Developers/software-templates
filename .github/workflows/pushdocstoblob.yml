@@ -1,0 +1,42 @@
+name: Publish TechDocs Site
+run-name: ${{ github.actor }} Updated the documentat
+
+on: [push]
+
+
+jobs:
+  publish-techdocs-site:
+    runs-on: ubuntu-latest
+
+    env:
+      AZURE_STORAGE_ACCOUNT_NAME: 'backstagehotdocs'
+      AZURE_STORAGE_KEY: 'bfiKnSd497tEoIITpbyZII0xlh/VB6/gCe0nGnOs2aaQRbtKZbD8Dh9cfqozh9mgh4fzNtCN/mBl+AStFzHiGw=='
+      ENTITY_NAMESPACE: 'default'
+      ENTITY_KIND: 'component'
+      ENTITY_NAME: 'software-templates'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install techdocs-cli
+        run: sudo npm install -g @techdocs/cli
+
+      - name: Install mkdocs and mkdocs plugins
+        run: python -m pip install mkdocs-techdocs-core==1.*
+
+      - name: Generate docs site
+        run: techdocs-cli generate --no-docker --verbose
+        
+      - name: Check techdocs-cli installation
+        run: |
+          which techdocs-cli || echo "techdocs-cli not found in PATH"
+          npx techdocs-cli --version
+
+      - name: Publish docs site
+        run: techdocs/cli publish --publisher-type azureBlobStorage --azureAccountName backstagehotdocs --container-name hotdocscontainer --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
