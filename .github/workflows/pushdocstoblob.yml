@@ -1,8 +1,10 @@
 name: Publish TechDocs Site
 run-name: ${{ github.actor }} Updated the documentat
 
-on: [push]
-
+on: 
+  push:
+    paths:
+      - '**/docs/**' # This will trigger the workflow when changes happen in any 'docs' folder. root and subfolder.
 
 jobs:
   publish-techdocs-site:
@@ -39,4 +41,4 @@ jobs:
           npx techdocs-cli --version
 
       - name: Publish docs site
-        run: techdocs/cli publish --publisher-type azureBlobStorage --azureAccountName backstagehotdocs --container-name hotdocscontainer --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
+        run: techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName backstagehotdocs --container-name hotdocscontainer --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
