@@ -1,0 +1,102 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+# some metadata about the template itself
+metadata:
+  name: create-umbraco-13-backend
+  title: Create a Umbraco 13 backend
+  description: creates a new Umbraco 13 backend
+  tags:
+    - template
+    - baseline
+    - umbraco
+    - 13
+    - create
+
+spec:
+  owner: github:gxe-Developers
+  type: service
+
+  # these are the steps which are rendered in the frontend with the form input
+  parameters:
+    - title: Fill in some steps
+      required:
+        - name
+        - owner
+        - userName
+        - password
+      properties:
+        name:
+          title: Name
+          type: string
+          description: Unique name of the component
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+        connectionstring:
+          title: Connectionstring
+          type: string
+          description: connectionstring to the database
+        userName:
+          title: Username
+          type: string
+          description: Username for the initial setup
+        email:
+          title: email
+          type: string
+          description: Email for the initial setup
+        password:
+          title: Password
+          type: string
+          description: Password for the initial setup
+        owner:
+          title: Owner
+          type: string
+          description: Unique name of the owner
+          ui:field OwnerPicker
+          ui:options:
+            allowedKinds:
+              - User
+              - Group
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # here's the steps that are executed in series in the scaffolder backend
+  steps:
+    - id: template
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./template
+        values:
+          name: ${{ parameters.name }}
+
+    - id: fetch-docs
+      name: Fetch Docs
+      action: fetch:plain
+      input:
+        targetPath: ./community
+        url: https://github.com/backstage/community/tree/main/backstage-community-sessions
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
