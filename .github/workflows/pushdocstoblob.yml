@@ -41,4 +41,4 @@ jobs:
           npx techdocs-cli --version
 
       - name: Publish docs site
-        run: techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName backstagehotdocs --container-name hotdocscontainer --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
+        run: techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName $AZURE_STORAGE_ACCOUNT_NAME --storage-name hotdocscontainer --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
