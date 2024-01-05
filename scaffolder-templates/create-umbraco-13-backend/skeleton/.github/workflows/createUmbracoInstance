@@ -1,0 +1,30 @@
+name: Create Umbraco Solution
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x' # Specify the .NET version
+
+    - name: Create Umbraco Solution
+      run: |
+        dotnet new sln -n MyUmbracoProject
+        dotnet new umbraco -n MyUmbracoWebApp
+        dotnet sln MyUmbracoProject.sln add MyUmbracoWebApp
+
+    - name: Commit and Push
+      run: |
+        git config --global user.name 'github.actor'
+        git config --global user.email 'nikolaijuhl@hotmail.com'
+        git add .
+        git commit -m "Add new Umbraco 13 solution"
+        git push
