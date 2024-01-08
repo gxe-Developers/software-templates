@@ -1,0 +1,115 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+# some metadata about the template itself
+metadata:
+  name: create-umbraco-13-backend
+  title: Create a Umbraco 13 backend
+  description: creates a new Umbraco 13 backend
+  tags:
+    - template
+    - baseline
+    - umbraco
+    - 13
+    - create
+
+spec:
+  owner: github:gxe-Developers
+  type: service
+
+  # these are the steps which are rendered in the frontend with the form input
+  parameters:
+    - title: Fill in some steps
+      required:
+        - component_id
+        - owner
+        - connectionstring
+        - userName
+        - email
+        - password
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique name of the component          
+          ui:field: EntityNamePicker
+        connectionstring:
+          title: Connectionstring
+          type: string
+          description: connectionstring to the database
+          ui:field: Secret
+        userName:
+          title: Username
+          type: string
+          description: Username for the initial setup
+          ui:field: Secret
+        email:
+          title: Email
+          type: string
+          description: Email for the initial setup
+          ui:field: Secret
+        password:
+          title: Password
+          type: string
+          description: Password for the initial setup
+          ui:field: Secret
+        owner:
+          title: Owner
+          type: string
+          description: Unique name of the owner
+          ui:field OwnerPicker
+          ui:options:
+            allowedKinds:
+              - User
+              - Group
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+  # here's the steps that are executed in series in the scaffolder backend
+  steps:
+    - id: template
+      name: Fetch Skeleton + Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+          copyWithoutTemplating:
+              - .github/workflows/techdocs.yml
+        values:
+          component_id: ${{ parameters.component_id }}
+          connectionstring: ${{ parameters.connectionstring }}
+          userName: ${{ parameters.userName }}
+          owner: ${{ parameters.owner }}
+          email: ${{ parameters.email }}
+          password: ${{ parameters.password }}
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: 
+          - github.com
+        description: This is ${{ parameters.component_id }}
+        repoUrl: ${{ parameters.repoUrl }}
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+        
+ output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}      
