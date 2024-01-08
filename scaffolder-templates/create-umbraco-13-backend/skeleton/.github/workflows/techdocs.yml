@@ -1,0 +1,48 @@
+name: Publish TechDocs Site
+run-name: ${{ github.actor }} Updated the documentation
+
+on: 
+  push:
+    paths:
+      - '**/docs/**' # This will trigger the workflow when changes happen in any 'docs' folder. root and subfolder.
+      - 'mkdocs.yml'
+
+jobs:
+  publish-techdocs-site:
+    runs-on: ubuntu-latest
+
+    env:
+      AZURE_STORAGE_ACCOUNT_NAME: 'backstagehotdocs'
+      AZURE_STORAGE_CONTAINER_NAME: 'hotdocscontainer'
+      AZURE_STORAGE_KEY: 'bfiKnSd497tEoIITpbyZII0xlh/VB6/gCe0nGnOs2aaQRbtKZbD8Dh9cfqozh9mgh4fzNtCN/mBl+AStFzHiGw=='
+      AZURE_CLIENT_ID: '97031f9e-66b1-487e-8f16-418d9a4ef61f'
+      AZURE_TENANT_ID: '0c585d73-0a1b-4352-8669-aa842ff47b5c'
+      AZURE_CLIENT_SECRET: 'WsP8Q~JWoaRJ~fGGomYI~thNFR8rVvk1hXVxndof'
+      ENTITY_NAMESPACE: 'default'
+      ENTITY_KIND: 'component'
+      ENTITY_NAME: ${{ github.event.repository.name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install techdocs-cli
+        run: sudo npm install -g @techdocs/cli
+
+      - name: Install mkdocs and mkdocs plugins
+        run: python -m pip install mkdocs-techdocs-core==1.*
+
+      - name: Generate docs site
+        run: techdocs-cli generate --no-docker --verbose
+        
+      - name: Check techdocs-cli installation
+        run: |
+          which techdocs-cli || echo "techdocs-cli not found in PATH"
+          npx techdocs-cli --version
+
+      - name: Publish docs site
+        run: techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName $AZURE_STORAGE_ACCOUNT_NAME --azureAccountKey $AZURE_STORAGE_KEY --storage-name $AZURE_STORAGE_CONTAINER_NAME --entity $ENTITY_NAMESPACE/$ENTITY_KIND/$ENTITY_NAME 
