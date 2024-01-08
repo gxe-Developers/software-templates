@@ -41,22 +41,22 @@ spec:
           title: Username
           type: string
           description: Username for the initial setup
-          ui:field: Secret
+          #ui:field: Secret
         email:
           title: Email
           type: string
           description: Email for the initial setup
-          ui:field: Secret
+         # ui:field: Secret
         password:
           title: Password
           type: string
           description: Password for the initial setup
-          ui:field: Secret
+         # ui:field: Secret
         owner:
           title: Owner
           type: string
           description: Unique name of the owner
-          ui:field OwnerPicker
+          ui:field: OwnerPicker
           ui:options:
             allowedKinds:
               - User
