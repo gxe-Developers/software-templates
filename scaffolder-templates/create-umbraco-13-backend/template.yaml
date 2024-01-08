@@ -36,18 +36,22 @@ spec:
           title: Connectionstring
           type: string
           description: connectionstring to the database
+          ui:field: Secret
         userName:
           title: Username
           type: string
           description: Username for the initial setup
+          ui:field: Secret
         email:
           title: Email
           type: string
           description: Email for the initial setup
+          ui:field: Secret
         password:
           title: Password
           type: string
           description: Password for the initial setup
+          ui:field: Secret
         owner:
           title: Owner
           type: string
