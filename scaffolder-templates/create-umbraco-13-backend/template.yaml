@@ -9,7 +9,6 @@ metadata:
     - template
     - baseline
     - umbraco
-    - 13
     - create
 
 spec:
